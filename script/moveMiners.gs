@@ -31,6 +31,7 @@ FROM Repairroom TO Repairroom
 */
 
 function moveMiners() {
+  var repairroomNum = 3
   
   var sheet = SpreadsheetApp.getActiveSpreadsheet();
   var inputSheet = sheet.getSheetByName("Sheet1"); // Sheet where user inputs data
@@ -41,9 +42,13 @@ function moveMiners() {
   var macAddress = inputSheet.getRange("C15").getValue(); 
   var snNum = inputSheet.getRange("C16").getValue(); 
 
-  var fromPos = fromIP.split('.'); // Split the input by dots
-  var toPos = toIP.split('.')
+
+  // FROM and TO IP split by .
+  var fromPos = fromIP.split('.');
+  var toPos = toIP.split('.');
   
+
+  // parse IP address to get location for FROM and TO loc
   // input "From IP" parse to check position
   if (fromPos.length === 4) {
     var fromSheetNum = parseInt(parts[1]);
@@ -57,6 +62,13 @@ function moveMiners() {
     var toRow = parseInt(parts[3]);
   }
 
+  if (fromSheetNum == 0){ // 0 means move from repairroom
+    fromSheetNum = repairroomNum
+  }
+  if (toSheetNum == 0){ // 0 means move to repairroom
+    toSheetNum = repairroomNum
+  }
+
   // Move from certain sheet (C1-C21) or repair room
   var fromSheet = sheet.getSheets()[fromSheetNum]
   // Move to certain sheet (C1-C21) or repair room
@@ -68,69 +80,65 @@ function moveMiners() {
   var fromColLetter = String.fromCharCode(64 + fromCol + 2);
 
   // Get the cell by combining col letter and row num
-  var targetCell1 = targetColLetter + ((2*row) + 1)
-  var targetCell2 = targetColLetter + ((2*row) + 1 + 1)
-  var fromCell1 = fromColLetter + ((2*row) + 1)
-  var fromCell2 = fromColLetter + ((2*row) + 1)
+  var targetCell1 = targetColLetter + ((2*toRow) + 1)
+  var targetCell2 = targetColLetter + ((2*toRow) + 1 + 1)
+  var fromCell1 = fromColLetter + ((2*fromRow) + 1)
+  var fromCell2 = fromColLetter + ((2*fromRow) + 1)
 
 
-  // transfer to target cell: check if backup, check if running, check if pulled
+  // TO location, check if empty before input data
   var to_cell_check = targetSheet.getRange(targetCell1).getValue()
   // check if its backup machine
-  if (to_cell_check.includes('#')){
-    SpreadsheetApp.getUi().alert("This is a backup machine!");
-    return; // stop the script for checking data input
-  }
+  // check if its already a pulled machine
   // check if its empty slot that there is no machine to pull
   if (!to_cell_check.isBlank()){
-    SpreadsheetApp.getUi().alert("There is machine running at this slot!");
-    return; // stop the script for checking data input
-  }
-  // check if its already a pulled machine
-  if (to_cell_check.includes('!')){
-    SpreadsheetApp.getUi().alert("This is a pulled machine!");
-    return; // stop the script for checking data input
+    SpreadsheetApp.getUi().alert("There is machine in this slot, Please check first!");
+    return; // stop the script for checking data input location
   }
 
-  // transfer from cell: check if empty, check if running, check if pulled
+
+  /* FROM location, check:
+    1. FROM C1-C21
+      1. check if empty, alert
+      2. check if state RUNNING, alert
+      3. check if state BACKUP -> process
+      4. check if state PULLED -> process to repairroom
+    2. FROM repairroom
+      1. check if empty, alert
+  */
   var from_cell_check = fromSheet.getRange(fromCell1).getValue()
-  // check if its backup machine
-  if (from_cell_check.includes('#')){
-    //SpreadsheetApp.getUi().alert("This is a backup machine!");
-    //return; // stop the script for checking data input
-
-    // if includes # sign, it means its a backup machine, process to re-locate
-    fromSheet.getRange(fromCell1).clearContent().setBackground(null)
-    fromSheet.getrange(fromCell2).clearContent().setBackground(null)
-  }
-  // check if its empty slot that there is no machine to pull
+  
+  // For Both C1-C21, and repairroom
   if (from_cell_check.isBlank()){
-    SpreadsheetApp.getUi().alert("There is no machine at this slot!");
-    return; // stop the script for checking data input
+    SpreadsheetApp.getUi().alert("There is no machine in this slot, Please check first!");
+    return; // stop the script for checking data input location      
   }
-  // check if its already a pulled machine / if the machine is in repair room
-  if (fromSheetNum != 0){ // machine not from repair room
-    if (from_cell_check.includes('!')){
-
-    SpreadsheetApp.getUi().alert("This is a pulled machine!");
-    return; // stop the script for checking data input
+  // For C1-C21
+  if (from_cell_check.includes("!")){ //This is a PULLED machine
+    if (toSheetNum != 0){ // Not moving to repairroom, alert
+      SpreadsheetApp.getUi().alert("This PULLED machine not moving to repairroom, Please check Target slot fisrt!");
+      return; // stop the script for checking data input location  
+    }
   }
+  if (from_cell_check.getBackground() == "#ffffff"){
+    SpreadsheetApp.getUi().alert("This is a RUNNING machine, Please check first!");
+    return; // stop the script for checking data input location 
   }
-
-
-
 
   // Insert the value into the specified cell
-  targetSheet.getRange(targetCell1).setValue(macAddress + "#").setBackground("green")
-  targetSheet.getRange(targetCell2).setValue(snNum + "#").setBackground("green")
+  targetSheet.getRange(targetCell1).setValue(macAddress)
+  targetSheet.getRange(targetCell2).setValue(snNum)
+  fromSheet.getRange(fromCell1).clearContent()
+  fromSheet.getRange(fromCell2).clearContent()
 
 
   // Optionally clear the input cell after submission
-  inputSheet.getRange("C9").clearContent();
-  inputSheet.getRange("C10").clearContent();  
-  inputSheet.getRange("C11").clearContent();
+  inputSheet.getRange("C13").clearContent();
+  inputSheet.getRange("C14").clearContent();  
+  inputSheet.getRange("C15").clearContent();
+  inputSheet.getRange("C16").clearContent();
   
   // Provide feedback (e.g., show an alert message)
-  SpreadsheetApp.getUi().alert("Backup Miners Action Processed!");
+  SpreadsheetApp.getUi().alert("Moving Miners Action Processed!");
 
 }
