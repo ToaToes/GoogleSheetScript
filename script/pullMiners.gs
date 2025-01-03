@@ -4,12 +4,13 @@
 
 function pullMiners() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet();
-  var inputSheet = sheet.getSheetByName("Sheet1"); // Sheet where user inputs data
+  var inputSheet = sheet.getSheetByName("Action"); // Sheet where user inputs data
   
-  // the user input is in cell A1 of the "Sheet1" sheet
+  // the user input is in cell A1 of the "Action" sheet
   var inputData = inputSheet.getRange("C1").getValue(); 
   var macAddress = inputSheet.getRange("C2").getValue(); 
   var snNum = inputSheet.getRange("C3").getValue(); 
+  var operator = inputSheet.getRange("C18").getValue();
 
   var parts = inputData.split('.'); // Split the input by dots
   
@@ -21,7 +22,8 @@ function pullMiners() {
   }
 
   // Get the correct sheet
-  var targetSheet = sheet.getSheets()[sheetNum];
+  var sheetN = "C" + sheetNum // Convert to C*
+  var targetSheet = sheet.getSheetByName(sheetN); 
 
   // Convert column num to letter
   var colLetter = String.fromCharCode(64 + col + 2);
@@ -38,7 +40,7 @@ function pullMiners() {
     return; // stop the script for checking data input
   }
   // check if its empty slot that there is no machine to pull
-  if (cell_check.isBlank()){
+  if (cell_check == ""){
     SpreadsheetApp.getUi().alert("There is no machine at this slot!");
     return; // stop the script for checking data input
   }
@@ -51,6 +53,11 @@ function pullMiners() {
   // Insert the value into the specified cell
   targetSheet.getRange(targetCell1).setValue(macAddress + "!").setBackground("red")
   targetSheet.getRange(targetCell2).setValue(snNum + "!").setBackground("red")
+
+  // Log the action for tracing
+  var logSheet = sheet.getSheetByName("Log");
+  // Add a new row to the log sheet with the details of the move
+  logSheet.appendRow([new Date(), "PULL", "", inputData, macAddress, snNum, operator]);
 
 
   // Optionally clear the input cell after submission
