@@ -31,16 +31,17 @@ FROM Repairroom TO Repairroom
 */
 
 function moveMiners() {
-  var repairroomNum = 3
+  var repairroomNum = 22
   
   var sheet = SpreadsheetApp.getActiveSpreadsheet();
-  var inputSheet = sheet.getSheetByName("Sheet1"); // Sheet where user inputs data
+  var inputSheet = sheet.getSheetByName("Action"); // Sheet where user inputs data
   
   // the user input is in cell A1 of the "Sheet1" sheet
   var fromIP = inputSheet.getRange("C13").getValue(); 
   var toIP = inputSheet.getRange("C14").getValue(); 
   var macAddress = inputSheet.getRange("C15").getValue(); 
   var snNum = inputSheet.getRange("C16").getValue(); 
+  var operator = inputSheet.getRange("C18").getValue();  
 
 
   // FROM and TO IP split by .
@@ -51,39 +52,46 @@ function moveMiners() {
   // parse IP address to get location for FROM and TO loc
   // input "From IP" parse to check position
   if (fromPos.length === 4) {
-    var fromSheetNum = parseInt(parts[1]);
-    var fromCol = parseInt(parts[2]);
-    var fromRow = parseInt(parts[3]);
+    var fromSheetNum = parseInt(fromPos[1]);
+    var fromCol = parseInt(fromPos[2]);
+    var fromRow = parseInt(fromPos[3]);
   }
   // input "To IP" parse to check postition
   if (toPos.length === 4) {
-    var toSheetNum = parseInt(parts[1]);
-    var toCol = parseInt(parts[2]);
-    var toRow = parseInt(parts[3]);
-  }
-
-  if (fromSheetNum == 0){ // 0 means move from repairroom
-    fromSheetNum = repairroomNum
-  }
-  if (toSheetNum == 0){ // 0 means move to repairroom
-    toSheetNum = repairroomNum
+    var toSheetNum = parseInt(toPos[1]);
+    var toCol = parseInt(toPos[2]);
+    var toRow = parseInt(toPos[3]);
   }
 
   // Move from certain sheet (C1-C21) or repair room
-  var fromSheet = sheet.getSheets()[fromSheetNum]
+  var fromSheetN = "C" + fromSheetNum // Convert to C*
   // Move to certain sheet (C1-C21) or repair room
-  var targetSheet = sheet.getSheets()[toSheetNum];
-
+  var targetSheetN = "C" + toSheetNum // Convert to C*
 
   // Convert column num to letter
   var targetColLetter = String.fromCharCode(64 + toCol + 2);
   var fromColLetter = String.fromCharCode(64 + fromCol + 2);
-
   // Get the cell by combining col letter and row num
   var targetCell1 = targetColLetter + ((2*toRow) + 1)
   var targetCell2 = targetColLetter + ((2*toRow) + 1 + 1)
   var fromCell1 = fromColLetter + ((2*fromRow) + 1)
-  var fromCell2 = fromColLetter + ((2*fromRow) + 1)
+  var fromCell2 = fromColLetter + ((2*fromRow) + 1 + 1)
+
+  // FROM or TO repair room
+  if (fromSheetNum == 0){ // 0 means move from repairroom
+    fromSheetN = "Repair Room"
+    fromCell1 = "B" + (fromRow + 2)
+    fromCell2 = "C" + (fromRow + 2)
+  }
+  if (toSheetNum == 0){ // 0 means move to repairroom
+    targetSheetN = "Repair Room"
+    targetCell1 = "B" + (toRow + 2)
+    targetCell2 = "C" + (toRow + 2)
+  }
+
+  // move to location
+  var fromSheet = sheet.getSheetByName(fromSheetN); 
+  var targetSheet = sheet.getSheetByName(targetSheetN); 
 
 
   // TO location, check if empty before input data
@@ -91,7 +99,7 @@ function moveMiners() {
   // check if its backup machine
   // check if its already a pulled machine
   // check if its empty slot that there is no machine to pull
-  if (!to_cell_check.isBlank()){
+  if (to_cell_check != ""){
     SpreadsheetApp.getUi().alert("There is machine in this slot, Please check first!");
     return; // stop the script for checking data input location
   }
@@ -109,7 +117,7 @@ function moveMiners() {
   var from_cell_check = fromSheet.getRange(fromCell1).getValue()
   
   // For Both C1-C21, and repairroom
-  if (from_cell_check.isBlank()){
+  if (from_cell_check == ""){
     SpreadsheetApp.getUi().alert("There is no machine in this slot, Please check first!");
     return; // stop the script for checking data input location      
   }
@@ -120,16 +128,30 @@ function moveMiners() {
       return; // stop the script for checking data input location  
     }
   }
-  if (from_cell_check.getBackground() == "#ffffff"){
-    SpreadsheetApp.getUi().alert("This is a RUNNING machine, Please check first!");
-    return; // stop the script for checking data input location 
+  else if (!from_cell_check.includes("#")){ // Check if its BACKUP machine
+    if (fromSheetNum != 0){ // Moving a machine not from repair room
+      SpreadsheetApp.getUi().alert("This is a RUNNING machine, Please check first!");
+      return; // stop the script for checking data input location 
+    }
+
   }
 
   // Insert the value into the specified cell
   targetSheet.getRange(targetCell1).setValue(macAddress)
   targetSheet.getRange(targetCell2).setValue(snNum)
-  fromSheet.getRange(fromCell1).clearContent()
-  fromSheet.getRange(fromCell2).clearContent()
+  if (fromSheetNum == 0){ // in repair room delete to move rows up
+    fromSheet.deleteRow(fromRow + 2)
+    fromSheet.deleteRow(fromRow + 2)
+  }
+  else{ // else not delete row
+    fromSheet.getRange(fromCell1).clearContent().setBackground(null)
+    fromSheet.getRange(fromCell2).clearContent().setBackground(null)
+  }
+
+  // Log the action for tracing
+  var logSheet = sheet.getSheetByName("Log");
+  // Add a new row to the log sheet with the details of the move
+  logSheet.appendRow([new Date(), "MOVE", fromIP, toIP, macAddress, snNum, operator]);
 
 
   // Optionally clear the input cell after submission
@@ -139,6 +161,6 @@ function moveMiners() {
   inputSheet.getRange("C16").clearContent();
   
   // Provide feedback (e.g., show an alert message)
-  SpreadsheetApp.getUi().alert("Moving Miners Action Processed!");
+  SpreadsheetApp.getUi().alert("Move Miners Action Processed!");
 
 }
