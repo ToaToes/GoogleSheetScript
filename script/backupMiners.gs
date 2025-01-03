@@ -6,12 +6,13 @@
 function backupMiners() {
   
   var sheet = SpreadsheetApp.getActiveSpreadsheet();
-  var inputSheet = sheet.getSheetByName("Sheet1"); // Sheet where user inputs data
+  var inputSheet = sheet.getSheetByName("Action"); // Sheet where user inputs data
   
-  // the user input is in cell A1 of the "Sheet1" sheet
+  // the user input is in cell A1 of the "Action" sheet
   var inputData = inputSheet.getRange("C9").getValue(); 
   var macAddress = inputSheet.getRange("C10").getValue(); 
   var snNum = inputSheet.getRange("C11").getValue(); 
+  var operator = inputSheet.getRange("C18").getValue();  
 
   var parts = inputData.split('.'); // Split the input by dots
   
@@ -23,7 +24,8 @@ function backupMiners() {
   }
 
   // Get the correct sheet
-  var targetSheet = sheet.getSheets()[sheetNum];
+  var sheetN = "C" + sheetNum // Convert to C*
+  var targetSheet = sheet.getSheetByName(sheetN); 
 
   // Convert column num to letter
   var colLetter = String.fromCharCode(64 + col + 2);
@@ -41,7 +43,7 @@ function backupMiners() {
     return; // stop the script for checking data input
   }
   // check if its empty slot that there is no machine to pull
-  if (cell_check.isBlank()){
+  if (cell_check == ""){
     SpreadsheetApp.getUi().alert("There is no machine at this slot!");
     return; // stop the script for checking data input
   }
@@ -53,8 +55,14 @@ function backupMiners() {
 
 
   // Insert the value into the specified cell
-  targetSheet.getRange(targetCell1).setValue(macAddress + "#").setBackground("green")
-  targetSheet.getRange(targetCell2).setValue(snNum + "#").setBackground("green")
+  targetSheet.getRange(targetCell1).setValue(macAddress + "#").setBackground("#00ff00")
+  targetSheet.getRange(targetCell2).setValue(snNum + "#").setBackground("#00ff00")
+
+
+  // Log the action for tracing
+  var logSheet = sheet.getSheetByName("Log");
+  // Add a new row to the log sheet with the details of the move
+  logSheet.appendRow([new Date(), "BACKUP", "", inputData, macAddress, snNum, operator]);
 
 
   // Optionally clear the input cell after submission
