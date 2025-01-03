@@ -17,4 +17,4 @@ Scenario
 ![alt text](https://github.com/ToaToes/GoogleSheetScript/blob/main/CDU_Inventory/Screenshot%202025-01-03%20at%2014.55.25.png)
 
 ## Log Sheet (to Log every modding user)
-![alt text]()
+![alt text](https://github.com/ToaToes/GoogleSheetScript/blob/main/CDU_Inventory/Screenshot%202025-01-03%20at%2014.55.33.png)
