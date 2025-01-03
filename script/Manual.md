@@ -11,9 +11,10 @@ Scenario
 ![alt text](https://github.com/ToaToes/GoogleSheetScript/blob/main/CDU_Inventory/Screenshot%202025-01-03%20at%2014.54.44.png)
 
 ## Inventory sheet
-
+![alt text]()
 
 ## Repair Room sheet
-
+![alt text]()
 
 ## Log Sheet (to Log every modding user)
+![alt text]()
