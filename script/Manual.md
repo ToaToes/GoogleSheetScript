@@ -3,7 +3,9 @@ Scenario
    move  -> backup
 2. pull machine to repair room:
    pull  -> move
-3. 
+3. move from repair to use:
+   move  -> backup
+   backup  -> rack
 
 
 
