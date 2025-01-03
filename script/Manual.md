@@ -11,7 +11,7 @@ Scenario
 ![alt text](https://github.com/ToaToes/GoogleSheetScript/blob/main/CDU_Inventory/Screenshot%202025-01-03%20at%2014.54.44.png)
 
 ## Inventory sheet
-![alt text]()
+![alt text](https://github.com/ToaToes/GoogleSheetScript/blob/main/CDU_Inventory/Screenshot%202025-01-03%20at%2014.55.51.png)
 
 ## Repair Room sheet
 ![alt text](https://github.com/ToaToes/GoogleSheetScript/blob/main/CDU_Inventory/Screenshot%202025-01-03%20at%2014.55.25.png)
