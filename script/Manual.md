@@ -1,9 +1,9 @@
 Scenario
-1. repair room to Cx as backup:
+1. repair room to Cx as backup: <br>
    move  -> backup
-2. pull machine to repair room:
+2. pull machine to repair room: <br>
    pull  -> move
-3. move from repair to use:
+3. move from repair to use: <br>
    move  -> backup
    backup  -> rack
 
