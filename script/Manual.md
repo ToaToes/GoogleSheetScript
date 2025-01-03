@@ -8,7 +8,7 @@ Scenario
 
 
 ## Action sheet (with function button)
-<img>https://github.com/ToaToes/GoogleSheetScript/blob/main/CDU_Inventory/Screenshot%202025-01-03%20at%2014.54.44.png</img>
+![alt text](https://github.com/ToaToes/GoogleSheetScript/blob/main/CDU_Inventory/Screenshot%202025-01-03%20at%2014.54.44.png)
 
 ## Inventory sheet
 
