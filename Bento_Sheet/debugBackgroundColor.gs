@@ -12,7 +12,7 @@ function debugBackgroundColor() {
     for (var j = 1; j <= numCols; j++) {
       var currentCell = range.getCell(i, j);
       var backgroundColor = currentCell.getBackground();
-      Logger.log("Cell (" + i + "," + j + "): " + backgroundColor + currentCell.getValue());
+      Logger.log("Cell (" + i + "," + j + "): " + backgroundColor + ", " + currentCell.getValue());
     }
   }
 }
